@@ -19,11 +19,20 @@ contract ERC721{
         address indexed to , 
         uint256 indexed tokenId);
 
+    event Approval (
+        address indexed owner,
+        address indexed approved,
+        uint256 indexed tokenId);
+    
+
     // Địa chỉ nào tạo ra NFT
     mapping (uint256 => address) private _tokenOwner;
 
     //Địa chỉ sở hữu bao nhiêu NFT
     mapping (address => uint256) private _OwnerTokensCount;
+
+    //Mapping from token id to approved address
+    mapping (uint256 => address) private _tokenApprovals;
 
     /// @notice Count all NFTs assigned to an owner
     /// @dev NFTs assigned to the zero address are considered invalid, and this
@@ -40,7 +49,7 @@ contract ERC721{
     ///  about them do throw.
     /// @param _tokenId The identifier for an NFT
     /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId) external view returns (address){
+    function ownerOf(uint256 _tokenId) public view returns (address){
         address owner = _tokenOwner[_tokenId];
         require(owner != address(0), 'Owner is not exist');
         return owner;
@@ -70,5 +79,47 @@ contract ERC721{
         
     }
 
-   
+    /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
+    ///  TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE
+    ///  THEY MAY BE PERMANENTLY LOST
+    /// @dev Throws unless `msg.sender` is the current owner, an authorized
+    ///  operator, or the approved address for this NFT. Throws if `_from` is
+    ///  not the current owner. Throws if `_to` is the zero address. Throws if
+    ///  `_tokenId` is not a valid NFT.
+    /// @param _from The current owner of the NFT
+    /// @param _to The new owner
+    /// @param _tokenId The NFT to transfer
+    
+
+    function _transferFrom (address _from, address _to, uint256 _tokenId) internal {
+        require(_to != address(0), 'Error = ERC721 Transfer to the zero address' );
+        require( ownerOf(_tokenId) == _from, 'Trying to trasfer a token the same token address');
+        
+        _OwnerTokensCount[_from]--;
+        _OwnerTokensCount[_to]++;
+        
+        _tokenOwner[_tokenId] = _to;
+
+        emit Transfer(_from, _to, _tokenId);
+    }
+
+
+    function transferFrom(address _from, address _to, uint256 _tokenId) internal {
+        _transferFrom(_from, _to, _tokenId);
+    }
+
+    //1. require that the person approving is the owner
+    //2. we are approving an address to a token (tokenId)
+    //3. require that we can't approve sending tokens of the owner to the owner
+    //4. update the map of the approval address
+    function approve(address _to, uint256 tokenId) public {
+        address owner = ownerOf(tokenId);
+        require(_to != owner, 'Error - approval to current owner');
+        require(msg.sender == owner, 'Curent caller is not the owner ');
+        _tokenApprovals[tokenId] = _to;
+
+
+        emit Approval(owner, _to, tokenId);
+    }
+
 }
