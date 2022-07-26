@@ -11,11 +11,11 @@ contract ERC165 is IERC165 {
         _registerInterface(bytes4(keccak256('supportsInterface(bytes4)')));
     }
 
-    function supportsInterface(bytes4 interfaceID) external view returns (bool){
+    function supportsInterface(bytes4 interfaceID) external override view returns (bool){
         return _supportedInterfaces[interfaceID];
     }
 
-    function _registerInterface(bytes4 interfaceID) internal{
+    function _registerInterface(bytes4 interfaceID) internal {
         require(interfaceID != 0xffffffff, 'Invalid interface request');
         _supportedInterfaces[interfaceID] = true;
     }
