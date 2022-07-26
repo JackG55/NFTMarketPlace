@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import './interfaces/IERC165.sol';
+import './ERC165.sol';
+import './interfaces/IERC721.sol';
+
 /**
     * @title Viết minting function 
     1. Địa chỉ nào tạo ra NFT 
@@ -11,18 +15,18 @@ pragma solidity ^0.8.0;
  */
 
 
-contract ERC721{
+contract ERC721 is ERC165, IERC721 {
 
      //tạo 1 event emits a tranfer log - contract address, from, to, token id
-    event Transfer(
-        address indexed from, 
-        address indexed to , 
-        uint256 indexed tokenId);
+    // event Transfer(
+    //     address indexed from, 
+    //     address indexed to , 
+    //     uint256 indexed tokenId);
 
-    event Approval (
-        address indexed owner,
-        address indexed approved,
-        uint256 indexed tokenId);
+    // event Approval (
+    //     address indexed owner,
+    //     address indexed approved,
+    //     uint256 indexed tokenId);
     
 
     // Địa chỉ nào tạo ra NFT
@@ -39,7 +43,7 @@ contract ERC721{
     ///  function throws for queries about the zero address.
     /// @param _owner An address for whom to query the balance
     /// @return The number of NFTs owned by `_owner`, possibly zero
-    function balanceOf(address _owner) public view returns (uint256){
+    function balanceOf(address _owner) public override view returns (uint256){
         require (_owner!= address(0), 'Owner is not exist');
         return _OwnerTokensCount[_owner];
     }
@@ -49,7 +53,7 @@ contract ERC721{
     ///  about them do throw.
     /// @param _tokenId The identifier for an NFT
     /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId) public view returns (address){
+    function ownerOf(uint256 _tokenId) public override view returns (address){
         address owner = _tokenOwner[_tokenId];
         require(owner != address(0), 'Owner is not exist');
         return owner;
@@ -104,7 +108,7 @@ contract ERC721{
     }
 
 
-    function transferFrom(address _from, address _to, uint256 _tokenId) internal {
+    function transferFrom(address _from, address _to, uint256 _tokenId) override public {
         _transferFrom(_from, _to, _tokenId);
     }
 
